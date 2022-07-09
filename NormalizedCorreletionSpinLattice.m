@@ -1,5 +1,6 @@
 function [ MI,Lstat,xi ] = NormalizedCorreletionSpinLattice(spin,Dcut)
-    % Function NormalizedCorreletionSpinLattice gives correlation between spins separated by distance d, for d=0,1,2,..,Dcu
+    % Function NormalizedCorreletionSpinLattice gives correlation between
+    % spins separated by distance d, for d=0,1,2,..,Dcut
     % Correlation is quantified by mutual information (MI).
     % spin: an NxM matrix which specifies the cropping pattern of each site.
     % Sites are connected as a two-dimensional lattice, i.e. each site is

@@ -38,8 +38,10 @@ for tF = 1:10
         end
         hts = [hts;ht];
         gts = [gts;g];
-        dts = [dts;d];
-        [ MI,Lstat,xi ] = NormalizedCorreletionSpinLattice(spins{T},5);
+        dts = [dts;d];        
+        sp = spins{T};
+        sp(isnan(sp)) = -999;
+        [ MI,Lstat,xi ] = NormalizedCorreletionSpinLattice(sp,5);
         xis(tF,sg) = xi;
     end
 end
