@@ -1,4 +1,4 @@
-function [spin,harvest] = Kremer_Lansing_Model(N, nrstates, pestradius, harvestradius, temp, nblock, T, a, b, counter, varargin)
+function [spin,harvest] = local_water_stress_Kremer_Lansing_Model(N, nrstates, pestradius, harvestradius, temp, nblock, T, a, b, counter, varargin)
     % This program simulates the evolution of cropping pattern (started from
     % random) and stop at time step T
     % N: dimension of the lattice

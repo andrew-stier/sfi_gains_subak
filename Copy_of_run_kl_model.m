@@ -18,9 +18,9 @@ gts = [];
 dts = [];
 xis = zeros(10,100);
 for tF = 1:10
-    for sg = 1:10
+    for sg = 1:5
         display(sprintf('tf: %d, sg: %d',tF,sg));
-        sigma = sg/100*b;
+        sigma = sg/5*b;
         [spins,harvests] = temperature_Kremer_Lansing_Model(N,nrstates,pestradius,harvestradius,temp,nblock,T,a,b,tF,sigma, shockrate,counter,spin);
         ht = [];
         for t = 1:T

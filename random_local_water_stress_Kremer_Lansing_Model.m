@@ -1,4 +1,4 @@
-function [spins,harvests] = temperature_Kremer_Lansing_Model(N, nrstates, pestradius, harvestradius, temp, nblock, T, a, b, tF, sigma, shock, counter, varargin)
+function [spin,harvest] = random_local_water_stress_Kremer_Lansing_Model(N, nrstates, pestradius, harvestradius, localwaterstress, temp, nblock, T, a, b, counter, varargin)
     % This program simulates the evolution of cropping pattern (started from
     % random) and stop at time step T
     % N: dimension of the lattice
@@ -28,29 +28,25 @@ function [spins,harvests] = temperature_Kremer_Lansing_Model(N, nrstates, pestra
     % imagesc(spin)
     %INITIALIZE
     h0=5; % maximal achievable harvest (payoff)
-    spins = {};
-    harvests = {};
     p = zeros(N,N); % pest load ()
     w = zeros(N,N); % waterstress
     h = zeros(N,N);% harvest
+    ud = randi(2,N)-1; % upstream downstreat
+    rng(2022);
+    stress_local = ud;
     if ~isempty(varargin)
         s = varargin{1};
     else
         s = randi(nrstates,N); % random states assigned
-    end
+    end   
     s2 = s; % updated states
     t=0;
     % TIME EVOLUTION
-    while t<=T        
-        bt = b;
-        if rand()<shock
-            bt = normrnd(b,sigma);
-            bt = max(bt,0);
-        end
+    while t<=T
         if counter>1
-            %if mod(t,counter)==0
-                %display(t)
-            %end
+            if mod(t,counter)==0
+                display(t)
+            end
         end
         f=[]; % update fraction of nodes in particular states
         for iz=1:nrstates
@@ -69,26 +65,11 @@ function [spins,harvests] = temperature_Kremer_Lansing_Model(N, nrstates, pestra
                     SpinNeigh=[SpinNeigh s(qq,jlimit1:jlimit2)];
                 end
             % update water and pests and harvest
-                if isnan(s(i,j))
-                    w(i,j) = nan;
-                else
-                    w(i,j) = f(s(i,j));
-                end
+                w(i,j) = f(s(i,j));
                 p(i,j) = 1/ ( 0.1+ (length(find(SpinNeigh==s(i,j)))-1) /(length(SpinNeigh)-1) ) ;
-                h(i,j) = h0-a*p(i,j)-bt*w(i,j);
-                if h(i,j) <0
-                    h(i,j) = 0;
-                end                            
+                h(i,j) = h0-a*p(i,j)-b*w(i,j) - localwaterstress*stress_local(i,j)*w(i,j);                
             end
         end
-        if t>tF
-            failed = harvests{t-tF}<=0;
-            for ts = (t-tF+1):t
-                failed = failed + (harvests{ts}<=0);
-            end            
-            h(failed==tF) = 0;
-            s(failed==tF) = nan;
-        end        
         % go throuh nodes randomly (not necessary!)
         xs=randperm(N);
         ys=randperm(N);
@@ -114,13 +95,6 @@ function [spins,harvests] = temperature_Kremer_Lansing_Model(N, nrstates, pestra
                 else 
                     s2(i,j)=s(i,j);
                 end
-                if isnan(s(i,j))
-                    s2(i,j) = nan;
-                else
-                    if isnan(s2(i,j))
-                        s2(i,j)=s(i,j);
-                    end
-                end
             end
         end
         if temp>0
@@ -129,23 +103,14 @@ function [spins,harvests] = temperature_Kremer_Lansing_Model(N, nrstates, pestra
                 mu=randsample(N,2,'true');
                 LL=randsample(nblock,1);
                 if mu(1)+LL-1<=N && mu(2)+LL-1<=N
-                    tmp_s2 = s2(mu(1):mu(1)+LL-1,mu(2):mu(2)+LL-1);
-                    rand_s2 = ones(LL,LL)*randi(nrstates,1);
-                    rand_s2(isnan(tmp_s2)) = nan;
-                    s2(mu(1):mu(1)+LL-1,mu(2):mu(2)+LL-1)=rand_s2;
+                    s2(mu(1):mu(1)+LL-1,mu(2):mu(2)+LL-1)=ones(LL,LL)*randi(nrstates,1);
                     Nu=Nu+LL^2;
                 end
             end
         end
         s=s2; % update state
-        spins{t+1} = s;
-        harvests{t+1} = h;
-        h2 = h;
-        h2(h<0)=0;
-        %temp = ginicoeff(reshape(h2,N*N,1))/2;
         t=t+1;
     end
         spin=s;
         harvest=h;
-        cooperation=f;
 end
