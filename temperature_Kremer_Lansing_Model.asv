@@ -48,9 +48,9 @@ function [spins,harvests] = temperature_Kremer_Lansing_Model(N, nrstates, pestra
             bt = max(bt,0);
         end
         if counter>1
-            %if mod(t,counter)==0
-                %display(t)
-            %end
+            if mod(t,counter)==0
+                display(t)
+            end
         end
         f=[]; % update fraction of nodes in particular states
         for iz=1:nrstates
@@ -86,7 +86,7 @@ function [spins,harvests] = temperature_Kremer_Lansing_Model(N, nrstates, pestra
             for ts = (t-tF+1):t
                 failed = failed + harvests{ts};
             end            
-            h(failed==tF) = 0;
+            h(failed===tF) = 0;
             s(failed==tF) = nan;
         end        
         % go throuh nodes randomly (not necessary!)
