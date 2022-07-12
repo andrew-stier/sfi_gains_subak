@@ -187,7 +187,7 @@ parfor idx = 1:(cnt-1)
         end
         averagewater_t(1,t-1)=mean(waters{t}(~isnan(spins{t})),"omitnan");
         if t>3
-            increase_average_water(1,t-1)=(averagewater(1,t-1)-averagewater(1,t-2));
+            increase_average_water(1,t-1)=(averagewater_t(1,t-1)-averagewater_t(1,t-2));
         end        
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     end
