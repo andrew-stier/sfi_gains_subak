@@ -1,4 +1,4 @@
-function [S,T] = PatchSize(spin)
+function [S,T,cluster] = PatchSize(spin)
     % Function PatchSize gives size (S) and cropping pattern (T) of each patch.
     % spin: an NxM matrix which specifies the cropping pattern of each site.
     % Sites are connected as a two-dimensional lattice, i.e. each site is
