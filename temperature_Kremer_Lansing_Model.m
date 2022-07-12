@@ -1,4 +1,4 @@
-function [spins,harvests,shocks,pests] = temperature_Kremer_Lansing_Model(N, nrstates, pestradius, harvestradius, temp, nblock, T, a, b, tF, sigma, shock, counter, varargin)
+function [spins,harvests,shocks,pests, waters] = temperature_Kremer_Lansing_Model(N, nrstates, pestradius, harvestradius, temp, nblock, T, a, b, tF, sigma, shock, counter, varargin)
     % This program simulates the evolution of cropping pattern (started from
     % random) and stop at time step T
     % N: dimension of the lattice
@@ -32,6 +32,7 @@ function [spins,harvests,shocks,pests] = temperature_Kremer_Lansing_Model(N, nrs
     harvests = {};
     shocks = [];
     pests = {};
+    waters = {};
     p = zeros(N,N); % pest load ()
     w = zeros(N,N); % waterstress
     h = zeros(N,N);% harvest
@@ -144,8 +145,9 @@ function [spins,harvests,shocks,pests] = temperature_Kremer_Lansing_Model(N, nrs
         spins{t+1} = s;
         harvests{t+1} = h;
         pests{t+1} = p;
-        h2 = h;
-        h2(h<0)=0;
+        waters{t+1} = w;
+        %h2 = h;
+        %h2(h<0)=0;
         %temp = ginicoeff(reshape(h2,N*N,1))/2;
         t=t+1;
     end
