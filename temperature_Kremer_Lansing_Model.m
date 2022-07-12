@@ -1,4 +1,4 @@
-function [spins,harvests] = temperature_Kremer_Lansing_Model(N, nrstates, pestradius, harvestradius, temp, nblock, T, a, b, tF, sigma, shock, counter, varargin)
+function [spins,harvests,shocks,pests] = temperature_Kremer_Lansing_Model(N, nrstates, pestradius, harvestradius, temp, nblock, T, a, b, tF, sigma, shock, counter, varargin)
     % This program simulates the evolution of cropping pattern (started from
     % random) and stop at time step T
     % N: dimension of the lattice
@@ -30,6 +30,8 @@ function [spins,harvests] = temperature_Kremer_Lansing_Model(N, nrstates, pestra
     h0=5; % maximal achievable harvest (payoff)
     spins = {};
     harvests = {};
+    shocks = [];
+    pests = {};
     p = zeros(N,N); % pest load ()
     w = zeros(N,N); % waterstress
     h = zeros(N,N);% harvest
@@ -47,6 +49,7 @@ function [spins,harvests] = temperature_Kremer_Lansing_Model(N, nrstates, pestra
             bt = normrnd(b,sigma);
             bt = max(bt,0);
         end
+        shocks = [shocks bt-b];
         if counter>1
             %if mod(t,counter)==0
                 %display(t)
@@ -111,6 +114,7 @@ function [spins,harvests] = temperature_Kremer_Lansing_Model(N, nrstates, pestra
                 % update state variable (copy most successful neighbor if he is better than you)
                 if h(Neigh(iii,1), Neigh(iii,2)) > h(i,j)
                     s2(i,j)= s(Neigh(iii,1), Neigh(iii,2));
+                    s2(i,j)=s(i,j);
                 else 
                     s2(i,j)=s(i,j);
                 end
@@ -140,12 +144,12 @@ function [spins,harvests] = temperature_Kremer_Lansing_Model(N, nrstates, pestra
         s=s2; % update state
         spins{t+1} = s;
         harvests{t+1} = h;
+        pests{t+1} = p;
         h2 = h;
         h2(h<0)=0;
         %temp = ginicoeff(reshape(h2,N*N,1))/2;
         t=t+1;
     end
         spin=s;
-        harvest=h;
-        cooperation=f;
+        harvest=h;       
 end
