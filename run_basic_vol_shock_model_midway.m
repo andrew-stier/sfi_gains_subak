@@ -37,7 +37,7 @@ parfor idx = 1:(cnt-1)
     nblock=4;
     a=0.5;
     b=9.6;
-    T=2;
+    T=500;
     shockrate = 1;
     counter=50;    
     %%%%%%%%%%%%%%%%%%%%%%%%%%%
