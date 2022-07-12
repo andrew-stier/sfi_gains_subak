@@ -1,4 +1,3 @@
-clear;
 addpath('../sfi_gains_subak/');
 load("steady_state_kremer_lansing_spin.mat")
 rng(seed);
