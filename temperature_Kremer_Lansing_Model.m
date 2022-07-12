@@ -113,7 +113,7 @@ function [spins,harvests,shocks,pests] = temperature_Kremer_Lansing_Model(N, nrs
                 if length(iii)>1, iii=iii(randsample(length(iii),1)); end
                 % update state variable (copy most successful neighbor if he is better than you)
                 if h(Neigh(iii,1), Neigh(iii,2)) > h(i,j)
-                    s2(i,j)= s(Neigh(iii,1), Neigh(iii,2));                    
+                    s2(i,j)= s(Neigh(iii,1), Neigh(iii,2));                        
                 else 
                     s2(i,j)=s(i,j);
                 end
