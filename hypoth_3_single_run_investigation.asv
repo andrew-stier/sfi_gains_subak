@@ -1,0 +1,125 @@
+%clear;
+%addpath('/home/Dropbox/Dropbox/sfi_gains/sfi_gains_subak/');
+load("steady_state_kremer_lansing_spin.mat")
+rng(2022);
+N=100;
+nrstates=4;
+pestradius=2;
+harvestradius=1;
+temp=0.05;
+nblock=4;
+a=0.5;
+b=9.6;
+T=400;
+shockrate = 1;
+counter=50;
+hts = [];
+gts = [];
+dts = [];
+sg_buckets = 20;
+xis = zeros(10,sg_buckets);
+tF = 3;
+sg = 11.5;
+display(sprintf('tf: %d, sg: %d',tF,sg));
+sigma = sg/sg_buckets*b;
+[spins,harvests,shocks] = temperature_Kremer_Lansing_Model(N,nrstates,pestradius,harvestradius,temp,nblock,T,a,b,tF,sigma, shockrate,counter,spin);
+ht = [];
+for t = 1:T
+    ht = [ht mean(mean(harvests{t}(~isnan(harvests{t}))))];
+end
+g = [];
+for t=1:T
+    htemp = harvests{t};
+    htemp = htemp(~isnan(htemp));
+    g = [g ginicoeff(htemp)];
+end
+d = [];
+for t=1:T
+    d = [d sum(sum(isnan(spins{t})))/N^2];
+end
+hts = [hts;ht];
+gts = [gts;g];
+dts = [dts;d];        
+sp = spins{T};
+sp(isnan(sp)) = -999;
+[ MI,Lstat,xi ] = NormalizedCorreletionSpinLattice(sp,5);
+
+neighborradius = 2;
+align_bins = 10;
+alignment = 1:align_bins;
+alignment = alignment/align_bins;
+failure_pdfs = [];
+num_steps_same_crop_before_fail = NaN(N,N);
+n_switches = zeros(N,N);
+t_to_fail = 400*ones(N,N);
+
+for i=1:N
+    for j=1:N
+        for t=2:T
+            if isnan(spins{t}(i,j))
+                t_failure = t;
+                t_to_fail(i,j) = t_failure;
+                last_crop = spins{t_failure-1}(i,j);
+                for t_prev=t_failure-1:-1:1
+                    if spins{t_prev}(i,j) ~= last_crop
+                        num_steps_same_crop_before_fail(i,j) = t_failure - t_prev;
+                        break;
+                    elseif t_prev == 1
+                        num_steps_same_crop_before_fail(i,j) = t_failure - t_prev;
+                        break;
+                    end
+                end
+                break;
+            end
+        end
+        for t=2:T
+            last_crop = spins{t_to_fail(i,j)-1}(i,j);
+            for t_prev=t_to_fail(i,j)-1:-1:1
+                prev_crop = spins{t_prev}(i,j);
+                if last_crop ~= prev_crop
+                    n_switches(i,j) = n_switches(i,j) + 1;
+                end
+                last_crop = prev_crop;
+            end
+            break;
+        end
+    end
+end
+
+figure();pcolor(num_steps_same_crop_before_fail);title('Number of steps with same cropping pattern before failure');colorbar()
+figure();pcolor(n_switches);title('Number of switches per farmer');colorbar()
+figure();pcolor(t_to_fail);title('Time to failure');colorbar()
+
+
+%figure();plot(alignment,nansum(failure_pdfs)/nansum(nansum(failure_pdfs)));set(gca, 'YScale', 'log');xlabel('fraction of neighbors aligned');ylabel('probability of farm failure')
+
+avg_switches_before_fail = NaN(N,N);
+for i=1:N
+    for j=1:N
+        avg_switches_before_fail(i,j) = t_to_fail(i,j) / n_switches(i,j);
+    end
+end
+
+figure();imagesc(avg_switches_before_fail);title('Average time in cropping pattern');colorbar()
+
+av_switches_fail = [];
+av_switches_no_fail = [];
+for i=1:N
+    for j=1:N
+        if t_to_fail(i,j) < 400
+            av_switches_fail = [av_switches_fail avg_switches_before_fail(i,j)];
+        else
+            av_switches_no_fail = [av_switches_no_fail avg_switches_before_fail(i,j)];
+        end
+    end
+end
+
+
+avg_stps_before_failure = nanmean(num_steps_same_crop_before_fail(:));
+var_stps_before_failure = nanvar(num_steps_same_crop_before_fail(:));
+
+avg_switches_no_fail = nanmean(av_switches_no_fail);
+var_switches_no_fail = nanvar(av_switches_no_fail);
+
+avg_switches_fail = nanmean(av_switches_fail);
+var_switches_fail = nanvar(av_switches_fail);
