@@ -7,12 +7,12 @@ params = {};
 hts_all = {};
 gts_all = {};
 dts_all = {};
-avg_same_crop_before_failure = {};
-var_same_crop_before_failure = {};
-avg_time_in_pattern_no_fail = {};
-var_avg_time_in_pattern_no_fail = {};
-avg_time_in_pattern_fail = {};
-var_avg_time_in_pattern_fail = {};
+avg_same_crop_before_failure = [];
+var_same_crop_before_failure = [];
+avg_time_in_pattern_no_fail = [];
+var_avg_time_in_pattern_no_fail = [];
+avg_time_in_pattern_fail = [];
+var_avg_time_in_pattern_fail = [];
 failure_pdfs_psize_all = {};
 failure_pdfs_distance_all = {};
 failure_pdfs_all = {};
@@ -36,7 +36,8 @@ end
 for idx = 1:(cnt-1)
     %%%%%%%%%%%%%%%%%%%%%%%%
     %setup variables
-    N=10;
+    N=100;
+    spin = spin(1:N, 1:N);
     nrstates=4;
     pestradius=2;
     harvestradius=1;
@@ -156,14 +157,14 @@ for idx = 1:(cnt-1)
     end
     
     
-    avg_same_crop_before_failure{idx} = nanmean(num_steps_same_crop_before_fail(:));
-    var_same_crop_before_failure{idx} = nanvar(num_steps_same_crop_before_fail(:));
+    avg_same_crop_before_failure(prms(1), prms(2)) = nanmean(num_steps_same_crop_before_fail(:));
+    var_same_crop_before_failure(prms(1), prms(2)) = nanvar(num_steps_same_crop_before_fail(:));
     
-    avg_time_in_pattern_no_fail{idx} = nanmean(av_switches_no_fail);
-    var_avg_time_in_pattern_no_fail{idx} = nanvar(av_switches_no_fail);
+    avg_time_in_pattern_no_fail(prms(1), prms(2)) = nanmean(av_switches_no_fail);
+    var_avg_time_in_pattern_no_fail(prms(1), prms(2)) = nanvar(av_switches_no_fail);
     
-    avg_time_in_pattern_fail{idx} = nanmean(av_switches_fail);
-    var_avg_time_in_pattern_fail{idx} = nanvar(av_switches_fail);
+    avg_time_in_pattern_fail(prms(1), prms(2)) = nanmean(av_switches_fail);
+    var_avg_time_in_pattern_fail(prms(1), prms(2)) = nanvar(av_switches_fail);
 
 
 
@@ -323,4 +324,4 @@ clear harvests spins shocks pests waters;
 clear sigma sp MI Lstat xi pest_vector die_vector pest_t pest_per_ind water_vector water_per_ind water_t;
 clear averagepest_t increase_average_pest averagewater_t increase_average_water counter cid tF spin sg harvest cnt;
 
-save(sprintf('../volatility_shock_run_kl_model_seed_%d.mat',seed))
+save(sprintf('volatility_shock_run_kl_model_seed_%d.mat',seed))

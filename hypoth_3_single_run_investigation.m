@@ -86,12 +86,12 @@ for i=1:N
     end
 end
 
-%figure();pcolor(num_steps_same_crop_before_fail);title('Number of steps with same cropping pattern before failure');colorbar()
-%figure();pcolor(n_switches);title('Number of switches per farmer');colorbar()
-%figure();pcolor(t_to_fail);title('Time to failure');colorbar()
+figure();pcolor(num_steps_same_crop_before_fail);title('Number of steps with same cropping pattern before failure');colorbar()
+figure();pcolor(n_switches);title('Number of switches per farmer');colorbar()
+figure();pcolor(t_to_fail);title('Time to failure');colorbar()
 
 
-%figure();plot(alignment,nansum(failure_pdfs)/nansum(nansum(failure_pdfs)));set(gca, 'YScale', 'log');xlabel('fraction of neighbors aligned');ylabel('probability of farm failure')
+figure();plot(alignment,nansum(failure_pdfs)/nansum(nansum(failure_pdfs)));set(gca, 'YScale', 'log');xlabel('fraction of neighbors aligned');ylabel('probability of farm failure')
 
 avg_switches_before_fail = NaN(N,N);
 for i=1:N
@@ -100,7 +100,7 @@ for i=1:N
     end
 end
 
-%figure();imagesc(avg_switches_before_fail);title('Average time in cropping pattern');colorbar()
+figure();imagesc(avg_switches_before_fail);title('Average time in cropping pattern');colorbar()
 
 av_switches_fail = [];
 av_switches_no_fail = [];
