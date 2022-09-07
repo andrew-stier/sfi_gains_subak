@@ -173,14 +173,11 @@ parfor idx = 1:(cnt-1)
         fraction_farms_want_to_switch(t) = 0
         for i=1:N
             for j=1:N
-                last_crop = spins{t_to_fail(i,j)-1}(i,j);
-                for t_prev=t_to_fail(i,j)-1:-1:1
-                    prev_crop = spins{t_prev}(i,j);
-                    if last_crop ~= prev_crop
-                        n_switches(i,j) = n_switches(i,j) + 1;
-                        fraction_farms_want_to_switch(t) = fraction_farms_want_to_switch(t) + 1
-                    end
-                    last_crop = prev_crop;
+                last_crop = spins{t-1}(i,j);
+                this_crop = spins{t}(i,j);
+                if last_crop ~= prev_crop
+                    n_switches(i,j) = n_switches(i,j) + 1;
+                    fraction_farms_want_to_switch(t) = fraction_farms_want_to_switch(t) + 1
                 end
             end
         end % end loop joris
