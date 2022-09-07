@@ -17,8 +17,12 @@ average_water_t_all = {};
 average_pest_t_all = {};
 increase_average_water_all = {};
 increase_average_pest_all = {};
+amountpatch_t_all={};
+sizepatch_t_all={};
+stdwater_t_all={};
+stdpest_t_all={};
 sg_buckets = 10;
-tf_max = 10;
+tf_max = 4;
 cnt = 1;
 for tF = 1:tf_max
     for sg = 1:sg_buckets
@@ -83,12 +87,16 @@ parfor idx = 1:(cnt-1)
     failure_pdfs = [];
     failure_pdfs_distance = [];
     failure_pdfs_psize = [];
+    averagewater_t=zeros(1,T);
+    failed_t=zeros(1,T);
+    averagepest_t=zeros(1,T);
+    stdpest_t=zeros(1,T);
+    stdwater_t=zeros(1,T);
+    sizepatch_t=zeros(1,T);
+    amountpatch_t=zeros(1,T);
     for t=2:T
         failed = zeros(N,N);
-        failed_t=zeros(1,T);
-        averagepest_t=zeros(1,T);
         increase_average_pest=zeros(1,T);
-        averagewater_t=zeros(1,T);
         increase_average_water=zeros(1,T);
         failed_prev = zeros(N,N);
         f_aligned = zeros(N,N);
@@ -179,17 +187,23 @@ parfor idx = 1:(cnt-1)
             end
         end
         failure_pdfs_psize = [failure_pdfs_psize; p_fail_psize];  
+        
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         failed_t(1,t)=(sum(sum(failed))-sum(failed_t(1,:)));
-        averagepest_t(1,t-1)=mean(pests{t}(~isnan(spins{t})),"omitnan");
+        amountpatch_t(1,t)=length(size);
+        sizepatch_t(1,t)=mean(size);
+        stdwater_t(1,t)=std(pests{t-1}(~isnan(spins{t-1})),"omitnan");
+        stdpest_t(1,t)=std(waters{t-1}(~isnan(spins{t-1})),"omitnan");
+        averagepest_t(1,t)=mean(pests{t-1}(~isnan(spins{t-1})),"omitnan");
+        averagewater_t(1,t)=mean(waters{t-1}(~isnan(spins{t-1})),"omitnan");
         if t>3
-            increase_average_pest(1,t-1)=(averagepest_t(1,t-1)-averagepest_t(1,t-2));
-        end
-        averagewater_t(1,t-1)=mean(waters{t}(~isnan(spins{t})),"omitnan");
-        if t>3
-            increase_average_water(1,t-1)=(averagewater_t(1,t-1)-averagewater_t(1,t-2));
-        end        
+            increase_average_pest(1,t)=(averagepest_t(1,t-1)-averagepest_t(1,t-2));
+             increase_average_water(1,t)=(averagewater_t(1,t-1)-averagewater_t(1,t-2));
+        end 
+        
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+        
     end
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     failure_pdfs_psize_all{idx} = failure_pdfs_psize;
@@ -198,8 +212,13 @@ parfor idx = 1:(cnt-1)
     failed_t_all{idx} = failed_t;
     average_water_t_all{idx} = averagewater_t;
     average_pest_t_all{idx} = averagepest_t;
+    amountpatch_t_all{idx}=amountpatch_t;
+    sizepatch_t_all{idx}= sizepatch_t;
+    stdwater_t_all{idx}=stdwater_t;
+    stdpest_t_all{idx}=stdpest_t;
     increase_average_water_all{idx} = increase_average_water;
     increase_average_pest_all{idx} = increase_average_pest;
+    
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     pest_per_ind=zeros(N,N);    
     water_per_ind=zeros(N,N);  
