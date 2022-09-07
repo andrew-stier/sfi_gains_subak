@@ -21,6 +21,12 @@ amountpatch_t_all={};
 sizepatch_t_all={};
 stdwater_t_all={};
 stdpest_t_all={};
+
+% code joris
+fraction_switches_all = {};
+fraction_farms_want_to_switch_all = {};
+% end code joris
+
 sg_buckets = 10;
 tf_max = 4;
 cnt = 1;
@@ -87,6 +93,12 @@ parfor idx = 1:(cnt-1)
     failure_pdfs = [];
     failure_pdfs_distance = [];
     failure_pdfs_psize = [];
+    
+    % code joris
+    fraction_farms_want_to_switch = zeros(1, T);
+    n_switches = ones(N,N);
+    % end code joris
+
     averagewater_t=zeros(1,T);
     failed_t=zeros(1,T);
     averagepest_t=zeros(1,T);
@@ -156,6 +168,22 @@ parfor idx = 1:(cnt-1)
                 end    
             end
         end
+        
+        % loops joris
+        fraction_farms_want_to_switch(t) = 0
+        for i=1:N
+            for j=1:N
+                last_crop = spins{t_to_fail(i,j)-1}(i,j);
+                for t_prev=t_to_fail(i,j)-1:-1:1
+                    prev_crop = spins{t_prev}(i,j);
+                    if last_crop ~= prev_crop
+                        n_switches(i,j) = n_switches(i,j) + 1;
+                        fraction_farms_want_to_switch(t) = fraction_farms_want_to_switch(t) + 1
+                    end
+                    last_crop = prev_crop;
+                end
+            end
+        end % end loop joris
     
         p_fail = [];
         for bb=1:length(alignment)
@@ -218,6 +246,11 @@ parfor idx = 1:(cnt-1)
     stdpest_t_all{idx}=stdpest_t;
     increase_average_water_all{idx} = increase_average_water;
     increase_average_pest_all{idx} = increase_average_pest;
+
+    % code joris
+    fraction_switches_all{idx} = n_switches / N*N;
+    fraction_farms_want_to_switch_all{idx} = fraction_farms_want_to_switch;
+    % end code joris
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     pest_per_ind=zeros(N,N);    
