@@ -1,5 +1,5 @@
 %clear;
-addpath('/home/Dropbox/Dropbox/sfi_gains/sfi_gains_subak/');
+%addpath('.../sfi_gains_subak/');
 load("steady_state_kremer_lansing_spin.mat");
 rng(2022);
 N=100;
@@ -57,6 +57,10 @@ alignment = [0 alignment];
 failure_pdfs = [];
 failure_pdfs_distance = [];
 failure_pdfs_psize = [];
+% code joris
+n_farms_want_to_switch_time_t = zeros(1, T);
+n_times_want_switches_per_farm = ones(N,N);
+% end code joris
 failure_size_distance = {};
 for t=2:T
     failed = zeros(N,N);
@@ -68,6 +72,8 @@ for t=2:T
     clusters = reshape(clusters,N,N);
     for i=1:N
         for j=1:N
+            spself = spins{t-1}(i,j);  % added joris
+            harvself = harvests{t-1}(i,j); % added joris
             ilimit1=max(1,i-neighborradius);
             ilimit2=min(N,i+neighborradius);
             SpinNeigh=[]; % vector of state values in neigborhood to compute pest load
@@ -76,6 +82,19 @@ for t=2:T
                 jlimit1=max(1,j-width);
                 jlimit2=min(N,j+width);
                 SpinNeigh=[SpinNeigh spins{t-1}(qq,jlimit1:jlimit2)];
+                % code joris
+                for rr=jlimit1:jlimit2
+                    spneigh = spins{t-1}(qq,rr);
+                    harvneigh = harvests{t-1}(qq,rr);
+                    % find if harvest neighbours is higher with
+                    % different cropping pattern and increment counters
+                    if (spneigh ~= spself) && (harvneigh > harvself)
+                        n_times_want_switches_per_farm(i,j) = n_times_want_switches_per_farm(i,j) + 1;
+                        n_farms_want_to_switch_time_t(t) = n_farms_want_to_switch_time_t(t) + 1;
+                        break;
+                    end
+                end
+                % end code joris
             end
             f_aligned(i,j) = sum(SpinNeigh == spins{t-1}(i,j))/length(SpinNeigh);
             failed(i,j) = isnan(spins{t}(i,j));
@@ -151,6 +170,12 @@ for t=2:T
     failure_pdfs_psize = [failure_pdfs_psize; p_fail_psize];    
 end
 
+figure();plot(alignment,nansum(failure_pdfs)/nansum(nansum(failure_pdfs)));set(gca, 'YScale', 'log');xlabel('fraction of neighbors aligned');ylabel('probability of farm failure')
+figure();plot(alignment,nansum(failure_pdfs)/nansum(nansum(failure_pdfs)));set(gca, 'YScale', 'log');xlabel('fraction of neighbors aligned');ylabel('probability of farm failure')
+% code joris
+figure();plot(n_farms_want_to_switch_time_t / (N*N));xlabel('Timestep');ylabel('Fraction of farmers that want to switch')
+figure();imagesc(n_times_want_switches_per_farm / T)
+% end code joris
 figure();plot(alignment,nansum(failure_pdfs)/nansum(nansum(failure_pdfs)));set(gca, 'YScale', 'log');xlabel('fraction of neighbors aligned');ylabel('probability of farm failure')
 figure();plot(distance,nansum(failure_pdfs_distance)/nansum(nansum(failure_pdfs_distance)));set(gca, 'YScale', 'log');xlabel('distance to periphary');ylabel('probability of farm failure')
 figure();plot(psize,nansum(failure_pdfs_psize)/nansum(nansum(failure_pdfs_psize)));set(gca, 'YScale', 'log');xlabel('patch boundary / patch size');ylabel('probability of farm failure')

@@ -23,8 +23,8 @@ stdwater_t_all={};
 stdpest_t_all={};
 
 % code joris
-fraction_switches_all = {};
-fraction_farms_want_to_switch_all = {};
+rate_switch_per_farm_all = {};
+fraction_farms_want_to_switch_per_t_all = {};
 % end code joris
 
 sg_buckets = 10;
@@ -95,8 +95,8 @@ parfor idx = 1:(cnt-1)
     failure_pdfs_psize = [];
     
     % code joris
-    fraction_farms_want_to_switch = zeros(1, T);
-    n_switches = ones(N,N);
+    n_farms_want_to_switch_time_t = zeros(1, T);
+    n_times_want_switches_per_farm = ones(N,N);
     % end code joris
 
     averagewater_t=zeros(1,T);
@@ -118,6 +118,8 @@ parfor idx = 1:(cnt-1)
         clusters = reshape(clusters,N,N);
         for i=1:N
             for j=1:N
+                spself = spins{t-1}(i,j); % added joris
+                harvself = harvests{t-1}(i,j); % added joris
                 ilimit1=max(1,i-neighborradius);
                 ilimit2=min(N,i+neighborradius);
                 SpinNeigh=[]; % vector of state values in neigborhood to compute pest load
@@ -126,6 +128,20 @@ parfor idx = 1:(cnt-1)
                     jlimit1=max(1,j-width);
                     jlimit2=min(N,j+width);
                     SpinNeigh=[SpinNeigh spins{t-1}(qq,jlimit1:jlimit2)];
+
+                    % code joris
+                    for rr=jlimit1:jlimit2
+                        spneigh = spins{t-1}(qq,rr);
+                        harvneigh = harvests{t-1}(qq,rr);
+                        % find if harvest neighbours is higher with
+                        % different cropping pattern and increment counters
+                        if (spneigh ~= spself) && (harvneigh > harvself)
+                            n_times_want_switches_per_farm(i,j) = n_times_want_switches_per_farm(i,j) + 1;
+                            n_farms_want_to_switch_time_t(t) = n_farms_want_to_switch_time_t(t) + 1;
+                            break;
+                        end
+                    end
+                    % end code joris
                 end
                 f_aligned(i,j) = sum(SpinNeigh == spins{t-1}(i,j))/length(SpinNeigh);
                 failed(i,j) = isnan(spins{t}(i,j));
@@ -168,20 +184,7 @@ parfor idx = 1:(cnt-1)
                 end    
             end
         end
-        
-        % loops joris
-        fraction_farms_want_to_switch(t) = 0
-        for i=1:N
-            for j=1:N
-                last_crop = spins{t-1}(i,j);
-                this_crop = spins{t}(i,j);
-                if last_crop ~= prev_crop
-                    n_switches(i,j) = n_switches(i,j) + 1;
-                    fraction_farms_want_to_switch(t) = fraction_farms_want_to_switch(t) + 1
-                end
-            end
-        end % end loop joris
-    
+
         p_fail = [];
         for bb=1:length(alignment)
             if bb>1
@@ -245,8 +248,8 @@ parfor idx = 1:(cnt-1)
     increase_average_pest_all{idx} = increase_average_pest;
 
     % code joris
-    fraction_switches_all{idx} = n_switches / N*N;
-    fraction_farms_want_to_switch_all{idx} = fraction_farms_want_to_switch;
+    rate_switch_per_farm_all{idx} = n_times_want_switches_per_farm / T;
+    fraction_farms_want_to_switch_per_t_all{idx} = n_farms_want_to_switch_time_t / (N*N);
     % end code joris
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
