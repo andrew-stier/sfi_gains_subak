@@ -119,6 +119,7 @@ parfor idx = 1:(cnt-1)
         for i=1:N
             for j=1:N
                 spself = spins{t-1}(i,j); % added joris
+                sw = 0; % no switch
                 harvself = harvests{t-1}(i,j); % added joris
                 ilimit1=max(1,i-neighborradius);
                 ilimit2=min(N,i+neighborradius);
@@ -130,15 +131,18 @@ parfor idx = 1:(cnt-1)
                     SpinNeigh=[SpinNeigh spins{t-1}(qq,jlimit1:jlimit2)];
 
                     % code joris
-                    for rr=jlimit1:jlimit2
-                        spneigh = spins{t-1}(qq,rr);
-                        harvneigh = harvests{t-1}(qq,rr);
-                        % find if harvest neighbours is higher with
-                        % different cropping pattern and increment counters
-                        if (spneigh ~= spself) && (harvneigh > harvself)
-                            n_times_want_switches_per_farm(i,j) = n_times_want_switches_per_farm(i,j) + 1;
-                            n_farms_want_to_switch_time_t(t) = n_farms_want_to_switch_time_t(t) + 1;
-                            break;
+                    if (sw == 0)
+                        for rr=jlimit1:jlimit2
+                            spneigh = spins{t-1}(qq,rr);
+                            harvneigh = harvests{t-1}(qq,rr);
+                            % find if harvest neighbours is higher with
+                            % different cropping pattern and increment counters
+                            if (spneigh ~= spself) && (harvneigh > harvself)
+                                n_times_want_switches_per_farm(i,j) = n_times_want_switches_per_farm(i,j) + 1;
+                                n_farms_want_to_switch_time_t(t) = n_farms_want_to_switch_time_t(t) + 1;
+                                sw = 1;
+                                break;
+                            end
                         end
                     end
                     % end code joris
