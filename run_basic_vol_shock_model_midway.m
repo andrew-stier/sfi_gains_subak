@@ -13,6 +13,7 @@ failed_t_all = {};
 water_vector_all = {};    
 pest_vector_all = {};
 die_vector_all = {};
+harvest_vector_all = {};
 average_water_t_all = {};
 average_pest_t_all = {};
 increase_average_water_all = {};
@@ -256,32 +257,38 @@ parfor idx = 1:(cnt-1)
     fraction_farms_want_to_switch_per_t_all{idx} = n_farms_want_to_switch_time_t / (N*N);
     % end code joris
     
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     pest_per_ind=zeros(N,N);    
-    water_per_ind=zeros(N,N);  
+    water_per_ind=zeros(N,N);
+    harvest_per_ind=zeros(N,N);
     for i=1:N    
         for j=1:N
             pest_t=zeros(1,T-1);
             water_t=zeros(1,T-1);
+            harvest_t=zeros(1,T-1);
             for t=2:T
                 if ~isnan(spins{t}(i,j))
                     pest_t(1,t-1)=pests{t}(i,j);
                     water_t(1,t-1)=waters{t}(i,j);
+                    harvest_t(1,t-1)=harvests{t}(i,j);
                 else
                     pest_t(1,t-1)=nan;
                     water_t(1,t-1)=nan;
+                    harvest_t(1,t-1)=nan;
                 end
             end
             pest_per_ind(i,j)=mean(pest_t(1,:),"omitnan");
             water_per_ind(i,j)=mean(water_t(1,:),"omitnan");
+            harvest_per_ind(i,j)=mean(harvest_t(1,:),"omitnan");
         end
     end  
     pest_vector=reshape(pest_per_ind.',1,[]);
     die_vector=reshape(spins{T}.',1,[]);
-    water_vector=reshape(water_per_ind.',1,[]);    
+    water_vector=reshape(water_per_ind.',1,[]);  
+    harvest_vector=reshape(harvest_per_ind.',1,[]);
     water_vector_all{idx} = water_vector;    
     pest_vector_all{idx} = pest_vector;
     die_vector_all{idx} = die_vector;
+    harvest_vector_all{idx} = harvest_vector;
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
 
